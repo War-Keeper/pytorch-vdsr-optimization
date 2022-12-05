@@ -4,7 +4,7 @@ from torch.autograd import Variable
 import numpy as np
 import time, math, glob
 import scipy.io as sio
-
+import onnx
 from nni.compression.pytorch import ModelSpeedup
 from nni.compression.pytorch.pruning import L1NormPruner
 
@@ -115,8 +115,10 @@ for scale in scales:
     print("PSNR_bicubic=", avg_psnr_bicubic/count)
     print("It takes average {}s for processing".format(avg_elapsed_time/count))
 
-
 torch.save(model, "model/" + "model_epoch_L1_No_Finetune.pth")
+
+dummy_input = Variable(torch.randn(1, 1, 28, 28))
+torch.onnx.export(model, dummy_input, "model/" + "model_epoch_L1_No_Finetune.onnx")
 
 # # run pruned model, NOT fine tuned yet
 # os.system( "python eval.py --model model/model_epoch_L1_No_Finetune.pth --dataset Set5 --cuda" )
